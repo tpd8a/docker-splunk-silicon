@@ -3,13 +3,46 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)&nbsp;
 [![GitHub release](https://img.shields.io/github/v/tag/splunk/docker-splunk?sort=semver&label=Version)](https://github.com/splunk/docker-splunk/releases)
 
-Welcome to the official Splunk repository of Dockerfiles for building Splunk Enterprise and Splunk Universal Forwarder images for containerized deployments.
+Welcome to the unofficial Splunk Arm repository of Dockerfiles for building Splunk Enterprise and Splunk Universal Forwarder images for containerized deployments.
 
 ----
+Tested Running on Redhat (aarch64) 8 only.  
+Passes the first 8 tests
 
-> :warning:&ensp;**DEPRECATION NOTICE**  
-We are no longer releasing Debian images on Docker Hub as of May 2021 (Splunk Enterprise v8.2.0+).
-Red Hat images will continue to be published.
+To build make sure you have python and pip setup on your mac
+
+Go to the base folder and enter 
+make test_redhat8
+
+Once your get passed the build stage you'll see the tests running below:
+
+tests/test_single_splunk_image.py::TestDockerSplunk::test_compose_1so_custombuild 
+tests/test_single_splunk_image.py::TestDockerSplunk::test_splunk_entrypoint_help 
+[gw0] PASSED tests/test_single_splunk_image.py::TestDockerSplunk::test_splunk_entrypoint_help 
+tests/test_single_splunk_image.py::TestDockerSplunk::test_splunk_scloud 
+[gw0] PASSED tests/test_single_splunk_image.py::TestDockerSplunk::test_splunk_scloud 
+tests/test_single_splunk_image.py::TestDockerSplunk::test_splunk_ulimit 
+[gw0] PASSED tests/test_single_splunk_image.py::TestDockerSplunk::test_splunk_ulimit 
+tests/test_single_splunk_image.py::TestDockerSplunk::test_splunk_entrypoint_create_defaults 
+[gw0] PASSED tests/test_single_splunk_image.py::TestDockerSplunk::test_splunk_entrypoint_create_defaults 
+tests/test_single_splunk_image.py::TestDockerSplunk::test_splunk_entrypoint_start_no_password 
+[gw0] PASSED tests/test_single_splunk_image.py::TestDockerSplunk::test_splunk_entrypoint_start_no_password 
+tests/test_single_splunk_image.py::TestDockerSplunk::test_splunk_entrypoint_start_no_accept_license 
+[gw0] PASSED tests/test_single_splunk_image.py::TestDockerSplunk::test_splunk_entrypoint_start_no_accept_license 
+tests/test_single_splunk_image.py::TestDockerSplunk::test_splunk_entrypoint_no_provision 
+[gw0] PASSED tests/test_single_splunk_image.py::TestDockerSplunk::test_splunk_entrypoint_no_provision 
+tests/test_single_splunk_image.py::TestDockerSplunk::test_splunk_uid_gid 
+[gw0] PASSED tests/test_single_splunk_image.py::TestDockerSplunk::test_splunk_uid_gid 
+tests/test_single_splunk_image.py::TestDockerSplunk::test_compose_1so_trial
+
+It'll hang on the test_compose_1so_trial, but your images will be created and ready to execute as per the offical instructions below.
+
+Todo:
+
+Install Aarch Mongo
+Redirect Aarch Python
+Fix tests
+Etc..etc
 
 ----
 
