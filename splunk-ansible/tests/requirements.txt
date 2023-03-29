@@ -1,0 +1,12 @@
+wheel
+pytest
+pylint
+mock
+docker
+requests
+molecule==3.0.8
+coverage
+caniusepython3
+ansible==4.2.0
+ansible-lint>=4.2.0
+testinfra

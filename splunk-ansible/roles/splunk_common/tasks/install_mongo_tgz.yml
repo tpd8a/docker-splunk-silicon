@@ -1,0 +1,39 @@
+- name: Downloading Mongo for aarch64
+  get_url:
+    url: "{{ mongo.build_location }}"
+    dest: "{{ splunk.opt }}"
+    owner: "{{ splunk.user }}"
+    group: "{{ splunk.group }}"
+    validate_certs: no
+    timeout: 900
+    mode: 0666
+  when: splunk.build_location is match("^(https?)://.*")
+  register: download_result
+  until: download_result is succeeded
+  retries: 5
+  delay: "{{ retry_delay }}"
+  become: true
+  become_user: "{{ privileged_user }}"
+
+- name: Define a path for the downloaded package
+  set_fact:
+    mongo_downloaded_build_location: "{{ download_result.dest }}"
+  when: mongo.build_location is match("^(https?)://.*")
+
+- name: Define a regex replacement for splunk.build_location
+  set_fact:
+    mongo_replaced_build_location: "{{ splunk.build_location | regex_replace('^file://(.*)$', '\\1') }}"
+
+- name: Install Mongo(Linux) from local build location
+  unarchive:
+    src: "{% if mongo.build_location is match('^(https?)://.*') %}{{ mongo_downloaded_build_location }}{% else %}{{ mongo_replaced_build_location }}{% endif %}"
+    dest: "{{ splunk.opt }}"
+    owner: "{{ splunk.user }}"
+    group: "{{ splunk.group }}"
+    remote_src: true
+  register: install_result
+  until: install_result is succeeded
+  retries: "{{ retry_num }}"
+  delay: "{{ retry_delay }}"
+  become: True
+  become_user: "{{ privileged_user }}"

@@ -1,0 +1,34 @@
+---
+- include_tasks: ../../../roles/splunk_common/tasks/set_as_hec_receiver.yml
+
+- include_tasks: indexer_clustering.yml
+  when: splunk_indexer_cluster | bool
+
+- include_tasks: ../../../roles/splunk_common/tasks/set_as_deployment_client.yml
+  when:
+    - splunk.deployment_server is defined
+    - splunk.deployment_server
+    - not splunk_indexer_cluster | bool
+
+- include_tasks: ../../../roles/splunk_common/tasks/provision_apps.yml
+  when:
+    - "'apps_location' in splunk and splunk.apps_location"
+    - not splunk_indexer_cluster | bool
+    - splunk.deployment_server is not defined or not splunk.deployment_server
+  vars:
+    app_list: "{{ splunk.apps_location}}"
+
+- include_tasks: ../../../roles/splunk_common/tasks/provision_apps.yml
+  when:
+    - "'app_paths_install' in splunk and 'default' in splunk.app_paths_install and splunk.app_paths_install.default"
+    - not splunk_indexer_cluster | bool
+    - splunk.deployment_server is not defined or not splunk.deployment_server
+  vars:
+    app_list: "{{ splunk.app_paths_install.default }}"
+
+- include_tasks: setup_multisite.yml
+  when:
+      - splunk.site is defined
+      - splunk.multisite_master is defined
+
+- include_tasks: ../../../roles/splunk_common/tasks/check_for_required_restarts.yml
