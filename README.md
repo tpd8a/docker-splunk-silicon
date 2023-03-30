@@ -18,6 +18,7 @@ make test_redhat8
 
 Once your get passed the build stage you'll see the tests running below:
 
+```bash
 tests/test_single_splunk_image.py::TestDockerSplunk::test_compose_1so_custombuild 
 tests/test_single_splunk_image.py::TestDockerSplunk::test_splunk_entrypoint_help 
 [gw0] PASSED tests/test_single_splunk_image.py::TestDockerSplunk::test_splunk_entrypoint_help 
@@ -36,6 +37,7 @@ tests/test_single_splunk_image.py::TestDockerSplunk::test_splunk_entrypoint_no_p
 tests/test_single_splunk_image.py::TestDockerSplunk::test_splunk_uid_gid 
 [gw0] PASSED tests/test_single_splunk_image.py::TestDockerSplunk::test_splunk_uid_gid 
 tests/test_single_splunk_image.py::TestDockerSplunk::test_compose_1so_trial
+```
 
 It'll hang on the test_compose_1so_trial, but your images will be created and ready to execute as per the offical instructions below.
 
