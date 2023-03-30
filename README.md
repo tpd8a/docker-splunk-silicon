@@ -39,6 +39,12 @@ tests/test_single_splunk_image.py::TestDockerSplunk::test_compose_1so_trial
 
 It'll hang on the test_compose_1so_trial, but your images will be created and ready to execute as per the offical instructions below.
 
+```bash
+$ docker run -p 8000:8000 -e "SPLUNK_PASSWORD=<password>" \
+             -e "SPLUNK_START_ARGS=--accept-license" \
+             -it --name so1 splunk-redhat-8
+```
+
 Todo:
 
 Install Aarch Mongo
