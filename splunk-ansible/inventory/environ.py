@@ -337,7 +337,9 @@ def getMongoBuild(vars_scope):
     """
     Parse and set mongo installation parameters
     """
-    vars_scope["mongo"]["build_location"] = os.environ.get("MONGO_BUILD_URL", vars_scope["mongo"].get("build_location"))
+    if os.environ.get("SPLUNK_ROLE") != "splunk_universal_forwarder":
+        vars_scope["mongo"]["build_location"] = os.environ.get("MONGO_BUILD_URL", vars_scope["mongo"].get("build_location"))
+    
 
 
 def getSplunkBuild(vars_scope):
