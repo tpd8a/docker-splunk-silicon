@@ -133,6 +133,7 @@ minimal-redhat-8: base-redhat-8
 		--build-arg SPLUNK_BASE_IMAGE=base-redhat-8 \
 		--build-arg SPLUNK_BUILD_URL=${SPLUNK_LINUX_BUILD_URL} \
 		--build-arg MONGO_BUILD_URL=${MONGO_BUILD_URL} \
+		--build-arg ANSIBLE_EXTRA_FLAGS=-vv \
 		--target minimal -t minimal-redhat-8:${IMAGE_VERSION} .
 
 ##### Bare images #####
@@ -175,6 +176,8 @@ bare-redhat-8: base-redhat-8
 		-f splunk/common-files/Dockerfile \
 		--build-arg SPLUNK_BASE_IMAGE=base-redhat-8 \
 		--build-arg SPLUNK_BUILD_URL=${SPLUNK_LINUX_BUILD_URL} \
+		--build-arg MONGO_BUILD_URL=${MONGO_BUILD_URL} \
+		--build-arg ANSIBLE_EXTRA_FLAGS=-vv \
 		--target bare -t bare-redhat-8:${IMAGE_VERSION} .
 
 ##### Splunk images #####
@@ -185,7 +188,7 @@ splunk-debian-9: base-debian-9 ansible
 		-f splunk/common-files/Dockerfile \
 		--build-arg SPLUNK_BASE_IMAGE=base-debian-9 \
 		--build-arg SPLUNK_BUILD_URL=${SPLUNK_LINUX_BUILD_URL} \
-                --build-arg MONGO_BUILD_URL=${MONGO_BUILD_URL} \
+        --build-arg MONGO_BUILD_URL=${MONGO_BUILD_URL} \
 		-t splunk-debian-9:${IMAGE_VERSION} .
 
 splunk-debian-10: base-debian-10 ansible
@@ -193,7 +196,7 @@ splunk-debian-10: base-debian-10 ansible
 		-f splunk/common-files/Dockerfile \
 		--build-arg SPLUNK_BASE_IMAGE=base-debian-10 \
 		--build-arg SPLUNK_BUILD_URL=${SPLUNK_LINUX_BUILD_URL} \
-                --build-arg MONGO_BUILD_URL=${MONGO_BUILD_URL} \
+        --build-arg MONGO_BUILD_URL=${MONGO_BUILD_URL} \
 		-t splunk-debian-10:${IMAGE_VERSION} .
 
 splunk-centos-7: base-centos-7 ansible
@@ -201,7 +204,7 @@ splunk-centos-7: base-centos-7 ansible
 		-f splunk/common-files/Dockerfile \
 		--build-arg SPLUNK_BASE_IMAGE=base-centos-7 \
 		--build-arg SPLUNK_BUILD_URL=${SPLUNK_LINUX_BUILD_URL} \
-                --build-arg MONGO_BUILD_URL=${MONGO_BUILD_URL} \
+        --build-arg MONGO_BUILD_URL=${MONGO_BUILD_URL} \
 		-t splunk-centos-7:${IMAGE_VERSION} .
 
 splunk-centos-8: base-centos-8 ansible 
@@ -209,7 +212,7 @@ splunk-centos-8: base-centos-8 ansible
 		-f splunk/common-files/Dockerfile \
 		--build-arg SPLUNK_BASE_IMAGE=base-centos-8 \
 		--build-arg SPLUNK_BUILD_URL=${SPLUNK_LINUX_BUILD_URL} \
-                --build-arg MONGO_BUILD_URL=${MONGO_BUILD_URL} \
+        --build-arg MONGO_BUILD_URL=${MONGO_BUILD_URL} \
 		-t splunk-centos-8:${IMAGE_VERSION} .
 
 splunk-redhat-8: base-redhat-8 ansible
@@ -217,7 +220,7 @@ splunk-redhat-8: base-redhat-8 ansible
 		-f splunk/common-files/Dockerfile \
 		--build-arg SPLUNK_BASE_IMAGE=base-redhat-8 \
 		--build-arg SPLUNK_BUILD_URL=${SPLUNK_LINUX_BUILD_URL} \
-                --build-arg MONGO_BUILD_URL=${MONGO_BUILD_URL} \
+		--build-arg MONGO_BUILD_URL=${MONGO_BUILD_URL} \
 		-t splunk-redhat-8:${IMAGE_VERSION} .
 
 splunk-windows-2016: base-windows-2016 ansible

@@ -7,7 +7,7 @@ networks:
 
 services:
   so1:
-    image: ${SPLUNK_IMAGE:-splunk/splunk:latest}
+    image: ${SPLUNK_IMAGE:-splunk-redhat-8:latest}
     hostname: so1
     environment:
       - SPLUNK_START_ARGS=--accept-license

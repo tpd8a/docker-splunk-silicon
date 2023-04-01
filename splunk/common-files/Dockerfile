@@ -31,15 +31,16 @@ RUN python /tmp/make-minimal-exclude.py ${SPLUNK_BUILD_URL} > /tmp/splunk-minima
     && mkdir -p /minimal/splunk/var /extras/splunk/var \
     && tar -C /minimal/splunk --strip 1 --exclude-from=/tmp/splunk-minimal-exclude.list -zxf /tmp/`basename ${SPLUNK_BUILD_URL}` \
     && tar -C /extras/splunk --strip 1 --wildcards --files-from=/tmp/splunk-minimal-exclude.list -zxf /tmp/`basename ${SPLUNK_BUILD_URL}` \
+    && rm -rf /minimal/splunk/bin/mongo* \
     && mv /minimal/splunk/etc /minimal/splunk-etc \
     && mv /extras/splunk/etc /extras/splunk-etc \
     && mkdir -p /minimal/splunk/etc /minimal/splunk/share/splunk/search_mrsparkle/modules.new \
     && echo "Downloading MongoDB at: ${MONGO_BUILD_URL}" \
-    && wget -qO /tmp/`basename ${MONGO_BUILD_URL}.tgz` ${MONGO_BUILD_URL}.tgz \ 
-    && echo "Basename MongoDB at: `basename ${MONGO_BUILD_URL}.tgz`" \    
+    && wget -qO /tmp/`basename ${MONGO_BUILD_URL}`.tgz ${MONGO_BUILD_URL}.tgz \ 
+    && echo "Basename MongoDB at: `basename ${MONGO_BUILD_URL}`.tgz" \    
     && tar -zxf /tmp/`basename ${MONGO_BUILD_URL}.tgz` \
-    && cp `basename ${MONGO_BUILD_URL}`/bin/mon* /minimal/splunk/bin  \
-    && ls -ltr  `basename ${MONGO_BUILD_URL}`/bin/mon* \
+    && \cp  /tmp/`basename ${MONGO_BUILD_URL}`/bin/mon* /minimal/splunk/bin  \
+    && ls -ltr  /tmp/`basename ${MONGO_BUILD_URL}`/bin/mon* \
     && ls -ltr /minimal/splunk/bin
 COPY splunk/common-files/apps /extras/splunk-etc/apps/
 

@@ -16,6 +16,7 @@ services:
     environment:
       - SPLUNK_START_ARGS=--accept-license
       - SPLUNK_BUILD_URL=https://download.splunk.com/products/splunk/releases/7.1.1/linux/splunk-7.1.1-8f0ead9ec3db-Linux-x86_64.tgz
+      - MONGO_BUILD_URL=https://fastdl.mongodb.org/linux/mongodb-linux-aarch64-rhel82-4.4.19.tgz
       - SPLUNK_PASSWORD
       - DEBUG=true
       - SPLUNK_ALLOW_UPGRADE=False

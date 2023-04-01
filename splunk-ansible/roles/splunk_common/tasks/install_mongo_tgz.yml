@@ -24,12 +24,14 @@
   set_fact:
     mongo_replaced_build_location: "{{ splunk.build_location | regex_replace('^file://(.*)$', '\\1') }}"
 
-- name: Install Mongo(Linux) from local build location
+- name: Install Mongo (Aarch64 Linux) from local build location
   unarchive:
     src: "{% if mongo.build_location is match('^(https?)://.*') %}{{ mongo_downloaded_build_location }}{% else %}{{ mongo_replaced_build_location }}{% endif %}"
     dest: "{{ splunk.opt }}"
     owner: "{{ splunk.user }}"
     group: "{{ splunk.group }}"
+    include: [ mongo mongod mongos mongorestore mongodump ]
+    mode: 0555
     remote_src: true
   register: install_result
   until: install_result is succeeded

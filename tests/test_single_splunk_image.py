@@ -199,7 +199,7 @@ class TestDockerSplunk(Executor):
         # Standup deployment
         self.compose_file_name = "1so_trial.yaml"
         self.project_name = self.generate_random_string()
-        container_count, rc = self.compose_up()
+        container_count = self.compose_up()
         # Wait for containers to come up
         assert self.wait_for_containers(container_count, label="com.docker.compose.project={}".format(self.project_name))
         # Check ansible inventory json
@@ -207,6 +207,7 @@ class TestDockerSplunk(Executor):
         self.check_common_keys(log_json, "so")
         # Check container logs
         output = self.get_container_logs("{}_so1_1".format(self.project_name))
+        output = output.decode('utf-8')
         self.check_ansible(output)
         # Check Splunkd on all the containers
         assert self.check_splunkd("admin", self.password)

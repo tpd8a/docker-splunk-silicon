@@ -1,0 +1,12 @@
+.vscode/
+*.idea
+*.DS_Store
+**/*.log
+.pytest_cache
+**/*.pyc
+*.xml
+*clair-scanner*
+.env
+venv
+tests/.executor.py.swp
+tests/.pytest_cache/v/cache/lastfailed

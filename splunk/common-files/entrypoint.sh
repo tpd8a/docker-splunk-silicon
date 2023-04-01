@@ -111,11 +111,11 @@ user_permission_change(){
 
 help() {
 	cat << EOF
-  ____        _             _      __
- / ___| _ __ | |_   _ _ __ | | __  \ \\
- \___ \| '_ \| | | | | '_ \| |/ /   \ \\
-  ___) | |_) | | |_| | | | |   <    / /
- |____/| .__/|_|\__,_|_| |_|_|\_\  /_/
+  ____        _             _          __      __
+ / ___| _ __ | |_   _ _ __ | | __     /  \     \ \
+ \___ \| '_ \| | | | | '_ \| |/ /    / /\ \     \ \
+  ___) | |_) | | |_| | | | |   <    / /__\ \    / /
+ |____/| .__/|_|\__,_|_| |_|_|\_\  /_/    \_\  /_/
        |_|
 ========================================
 
@@ -138,6 +138,7 @@ Environment Variables:
   * SPLUNK_STANDALONE_URL, SPLUNK_INDEXER_URL, ... - comma-separated list of resolvable aliases to properly bring-up a distributed environment.
                                                      This is optional for standalones, but required for multi-node Splunk deployments.
   * SPLUNK_BUILD_URL - URL to a Splunk build which will be installed (instead of the image's default build)
+  * MONGO_BUILD_URL - URL to a Aarch64 Mongo build which will be installed (instead of the image's default build)
   * SPLUNK_APPS_URL - comma-separated list of URLs to Splunk apps which will be downloaded and installed
 
 Examples:
