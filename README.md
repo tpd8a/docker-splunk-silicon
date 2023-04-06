@@ -14,7 +14,11 @@ Passes the first 8 tests
 To build make sure you have python and pip setup on your mac
 
 Go to the base folder and enter 
+
+```bash
+export PATH=$PATH:~/Library/Python/3.9/bin
 make test_redhat8
+```
 
 Once your get passed the build stage you'll see the tests running below:
 
