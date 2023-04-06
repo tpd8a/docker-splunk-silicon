@@ -38,9 +38,8 @@ RUN python /tmp/make-minimal-exclude.py ${SPLUNK_BUILD_URL} > /tmp/splunk-minima
     && wget -qO /tmp/`basename ${MONGO_BUILD_URL}.tgz` ${MONGO_BUILD_URL}.tgz \ 
     && echo "Basename MongoDB at: `basename ${MONGO_BUILD_URL}.tgz`" \    
     && tar -zxf /tmp/`basename ${MONGO_BUILD_URL}.tgz` \
-    && cp `basename ${MONGO_BUILD_URL}`/bin/mon* /minimal/splunk/bin  \
-    && ls -ltr  `basename ${MONGO_BUILD_URL}`/bin/mon* \
-    && ls -ltr /minimal/splunk/bin
+    && \cp `basename ${MONGO_BUILD_URL}`/bin/mon* /extras/splunk/bin
+
 COPY splunk/common-files/apps /extras/splunk-etc/apps/
 
 
