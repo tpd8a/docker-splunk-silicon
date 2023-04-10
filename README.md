@@ -14,7 +14,11 @@ Passes the first 8 tests
 To build make sure you have python and pip setup on your mac
 
 Go to the base folder and enter 
+
+```bash
+export PATH=$PATH:~/Library/Python/3.9/bin
 make test_redhat8
+```
 
 Once your get passed the build stage you'll see the tests running below:
 
@@ -48,37 +52,25 @@ $ docker run -p 8000:8000 -e "SPLUNK_PASSWORD=<password>" \
 ```
 
 ```bash
-$ docker run -d -P --user root \
-             -e SPLUNK_START_ARGS=--accept-license \
-	     -e SPLUNK_PASSWORD=helloworld \
-	     -e SPLUNK_USER=root \
-	     -e SPLUNK_GROUP=root \
-	     -it --name uf1 uf-redhat-8
-```
-
-```bash
-sh-4.4$ ps -ef
 UID        PID  PPID  C STIME TTY          TIME CMD
-ansible      1     0  0 06:25 pts/0    00:00:00 /bin/bash /sbin/entrypoint.sh start-service
-splunk    1261     1 15 06:26 ?        00:00:06 /rosetta/rosetta /opt/splunk/bin/splunkd -p 8089 start
-splunk    1262  1261  0 06:26 ?        00:00:00 /rosetta/rosetta /opt/splunk/bin/splunkd -p 8089 start
-splunk    1456  1262  3 06:26 ?        00:00:01 /rosetta/rosetta /opt/splunk/bin/mongod --dbpath=/opt/splunk/va
-splunk    1557  1262  3 06:26 ?        00:00:00 /rosetta/rosetta /opt/splunk/bin/splunkd instrument-resource-us
-splunk    1558  1262  1 06:26 ?        00:00:00 /rosetta/rosetta /opt/splunk/bin/python3.7 /opt/splunk/etc/apps
-splunk    1570  1262  1 06:26 ?        00:00:00 /rosetta/rosetta /opt/splunk/bin/python3.7 /opt/splunk/etc/apps
-splunk    1575  1262  2 06:26 ?        00:00:00 /rosetta/rosetta /opt/splunk/bin/python3.7 /opt/splunk/etc/apps
-splunk    1640  1262  7 06:26 ?        00:00:01 /rosetta/rosetta /opt/splunk/bin/python3.7 -O /opt/splunk/lib/p
-root      2146     1  0 06:26 pts/0    00:00:00 sudo -u splunk tail -n 0 -f /opt/splunk/var/log/splunk/splunkd_
-splunk    2147  2146  0 06:26 pts/0    00:00:00 /usr/bin/coreutils --coreutils-prog-shebang=tail /bin/tail -n 0
-ansible   2229     0  0 06:26 pts/1    00:00:00 /bin/sh
-ansible   2235  2229  0 06:26 pts/1    00:00:00 ps -ef
+ansible      1     0  0 21:21 ?        00:00:00 /bin/bash /sbin/entrypoint.sh start-service
+ansible    204     0  0 21:21 pts/0    00:00:00 /bin/sh
+splunk     971     1 13 21:21 ?        00:00:06 /rosetta/rosetta /opt/splunk/bin/splunkd -p 8089 start
+splunk     972   971  0 21:21 ?        00:00:00 /rosetta/rosetta /opt/splunk/bin/splunkd -p 8089 start
+splunk    1147   972  4 21:21 ?        00:00:01 mongod --dbpath=/opt/splunk/var/lib/splunk/kvstore/mongo --storageEngine=wiredTiger --wiredTigerCacheSizeGB=0.450000 --port=8191 --timeStampFormat=iso8601-utc --oplogSize=200 --keyFile=/opt/splunk/var/lib/spl
+splunk    1301   972  2 21:21 ?        00:00:00 /rosetta/rosetta /opt/splunk/bin/splunkd instrument-resource-usage -p 8089 --with-kvstore
+splunk    1334   972  2 21:21 ?        00:00:00 /rosetta/rosetta /opt/splunk/bin/python3.7 /opt/splunk/etc/apps/splunk_secure_gateway/bin/ssg_enable_modular_input.py
+splunk    1351   972  3 21:21 ?        00:00:01 /rosetta/rosetta /opt/splunk/bin/python3.7 -O /opt/splunk/lib/python3.7/site-packages/splunk/appserver/mrsparkle/root.py --proxied=127.0.0.1,8065,8000
+root      1885     1  0 21:21 ?        00:00:00 sudo -u splunk tail -n 0 -f /opt/splunk/var/log/splunk/splunkd_stderr.log
+splunk    1886  1885  0 21:21 ?        00:00:00 /usr/bin/coreutils --coreutils-prog-shebang=tail /bin/tail -n 0 -f /opt/splunk/var/log/splunk/splunkd_stderr.log
+splunk    1992   972  8 21:22 ?        00:00:00 /rosetta/rosetta /opt/splunk/bin/splunkd -p 8089 start
+splunk    1993  1992  0 21:22 ?        00:00:00 /rosetta/rosetta /opt/splunk/bin/splunkd -p 8089 start
 sh-4.4$ uname -a
-Linux 53dc547668e6 5.15.49-linuxkit #1 SMP PREEMPT Tue Sep 13 07:51:32 UTC 2022 aarch64 aarch64 aarch64 GNU/Linux
+Linux so1 5.15.49-linuxkit #1 SMP PREEMPT Tue Sep 13 07:51:32 UTC 2022 aarch64 aarch64 aarch64 GNU/Linux
 
 ```
 Todo:
 
-Install Aarch Mongo
 Redirect Aarch Python
 Fix tests
 Etc..etc
