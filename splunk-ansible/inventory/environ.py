@@ -152,7 +152,7 @@ def getDefaultVars():
     getUFSplunkVariables(defaultVars)
     getESSplunkVariables(defaultVars)
     getDSP(defaultVars)
-    getMongoBuild(defaultVars)
+    #getMongoBuild(defaultVars)
     return defaultVars
 
 def getSplunkPaths(vars_scope):

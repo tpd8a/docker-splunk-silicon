@@ -389,11 +389,7 @@ run_large_tests_centos7:
 
 run_small_tests_redhat8:
 	@echo 'Running the super awesome small tests; RedHat 8'
-	pytest -n 2 --reruns 1 -sv tests/test_single_splunk_image.py --platform redhat-8 --junitxml test-results/redhat8-result/testresults_small_redhat8.xml
-
-run_small_debug_redhat8:
-	@echo 'Running the super awesome small tests; RedHat 8'
-	pytest -n 2 --reruns 1 -sv tests/debug_single_splunk_image.py --platform redhat-8 --junitxml test-results/redhat8-result/debugresults_small_redhat8.xml
+	pytest --log-cli-level DEBUG -n 2 --reruns 1 -vv tests/test_single_splunk_image.py --platform redhat-8 --junitxml test-results/redhat8-result/testresults_small_redhat8.xml
 
 run_large_tests_redhat8:
 	@echo 'Running the super awesome large tests; RedHat 8'

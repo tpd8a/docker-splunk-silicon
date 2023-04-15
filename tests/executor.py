@@ -28,7 +28,7 @@ urllib3.disable_warnings(SubjectAltNameWarning)
 FILE_DIR = os.path.dirname(os.path.normpath(os.path.join(__file__)))
 REPO_DIR = os.path.join(FILE_DIR, "..")
 # Setup logging
-LOGGER = logging.getLogger("docker-splunk")
+LOGGER = logging.getLogger("docker-splunk-silicon")
 LOGGER.setLevel(logging.DEBUG)
 file_handler = logging.handlers.RotatingFileHandler(os.path.join(FILE_DIR, "..", "test-results", "docker_splunk_test_python{}.log".format(sys.version_info[0])), maxBytes=25000000)
 formatter = logging.Formatter('%(asctime)s %(levelname)s [%(name)s] [%(process)d] %(message)s')
@@ -81,7 +81,8 @@ class Executor(object):
 
     @staticmethod
     def generate_random_string():
-        return ''.join(choice(ascii_lowercase) for b in range(10))
+        mystring= ''.join(choice(ascii_lowercase) for b in range(10))
+        return mystring
 
     def handle_request_retry(self, method, url, kwargs):
         for n in range(Executor.RETRY_COUNT):
@@ -152,6 +153,7 @@ class Executor(object):
                 # The healthcheck on our Splunk image is not reliable - resorting to checking logs
                 if container.get("Labels", {}).get("maintainer") == "support@splunk.com":
                     output = self.client.logs(container["Id"], tail=5)
+                    output = output.decode('utf-8')
                     if "unable to" in output or "denied" in output or "splunkd.pid file is unreadable" in output:
                         self.logger.error("Container {} did not start properly, last log line: {}".format(container["Names"][0], output))
                     elif "Ansible playbook complete" in output:
@@ -227,16 +229,23 @@ class Executor(object):
 
     def compose_up(self, defaults_url=None, apps_url=None):
         container_count = self.get_number_of_containers(os.path.join(self.SCENARIOS_DIR, self.compose_file_name))
+        self.logger.info(container_count)   
         command = "docker-compose -p {} -f test_scenarios/{} up -d".format(self.project_name, self.compose_file_name)
         out, err, rc = self._run_command(command, defaults_url, apps_url)
         return container_count, rc
 
     def extract_json(self, container_name):
+        #import pdb; pdb.set_trace()
+        self.logger.info("getting json")   
+        self.logger.info(container_name)   
         retries = 15
         for i in range(retries):
             exec_command = self.client.exec_create(container_name, "cat /opt/container_artifact/ansible_inventory.json")
             json_data = self.client.exec_start(exec_command)
-            if "No such file or directory" in json_data:
+
+            self.logger.info(json_data) 
+            if len(json_data) < 200:
+                self.logger.info("No such file or directory:") 
                 time.sleep(5)
             else: 
                 break
@@ -275,18 +284,18 @@ class Executor(object):
         if apps_url:
             env["SPLUNK_APPS_URL"] = apps_url
         proc = subprocess.Popen(sh, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=env)
-        lines = []
-        err_lines = []
-        for line in iter(proc.stdout.readline, ''):
-            lines.append(line)
-        for line in iter(proc.stderr.readline, ''):
-            err_lines.append(line)
-        proc.stdout.close()
-        proc.stderr.close()
+        stdout, stderr = proc.communicate()
+        if not stdout:
+            stderr =stderr.decode('utf-8')
+            len(stderr.strip().split("\n"))
+        else:
+            stdout =stderr.decode('utf-8')
+            len(stdout.strip().split("\n"))
         proc.wait()
-        out = "".join(lines)
+        out = stderr
         self.logger.info("STDOUT: %s" % out)
-        err = "".join(err_lines)
+        err = stdout
+        self.logger.info(proc.returncode)
         self.logger.info("STDERR: %s" % err)
         self.logger.info("RC: %s" % proc.returncode)
         return out, err, proc.returncode
@@ -329,7 +338,7 @@ class Executor(object):
             assert False
 
     def check_ansible(self, output):
-        output = output.encode('utf-8')
+        #output = output.encode('utf-8')
         assert "ansible-playbook" in output
         assert "config file = /opt/ansible/ansible.cfg" in output
 

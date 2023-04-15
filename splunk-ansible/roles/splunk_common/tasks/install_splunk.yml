@@ -27,8 +27,8 @@
 - name: Install Splunk
   include_tasks: install_splunk_{{ splunk_build_type }}.yml
 
-- name: Install Mongo
-  include_tasks: install_mongo_{{ splunk_build_type }}.yml
+#- name: Install Mongo
+#  include_tasks: install_mongo_{{ splunk_build_type }}.yml
 
 - name: Remove installers
   file:

@@ -11,7 +11,7 @@ services:
       splunknet:
         aliases:
           - uf1
-    image: ${UF_IMAGE:-splunk/universalforwarder:latest}
+    image: ${UF_IMAGE:latest}
     environment:
       - SPLUNK_START_ARGS=--accept-license
       - SPLUNK_ENABLE_SERVICE=true
