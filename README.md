@@ -108,7 +108,7 @@ Start a single containerized instance of Splunk Enterprise with the command belo
 ```bash
 $ docker run -p 8000:8000 -e "SPLUNK_PASSWORD=<password>" \
              -e "SPLUNK_START_ARGS=--accept-license" \
-             -it --name so1 splunk/splunk:latest
+             -it --name so1 splunk-redhat-8:latest
 ```
 
 This command does the following:
