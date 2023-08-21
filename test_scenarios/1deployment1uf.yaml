@@ -11,7 +11,7 @@ services:
       splunknet:
         aliases:
           - appserver
-    image: nwang92/nginx-mitm
+    image: arm64v8/httpd
     hostname: appserver
     ports:
       - 80

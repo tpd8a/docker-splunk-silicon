@@ -18,10 +18,15 @@ from shutil import copy
 from random import choice
 from string import ascii_lowercase
 # Code to suppress insecure https warnings
+import ssl
+ssl._create_default_https_context = ssl._create_unverified_context
 import urllib3
-from urllib3.exceptions import InsecureRequestWarning, SubjectAltNameWarning
-urllib3.disable_warnings(InsecureRequestWarning)
-urllib3.disable_warnings(SubjectAltNameWarning)
+urllib3.disable_warnings()
+
+
+http = urllib3.PoolManager(
+    ssl_minimum_version=ssl.TLSVersion.TLSv1
+)
 
 
 # Define variables
@@ -87,7 +92,7 @@ class Executor(object):
     def handle_request_retry(self, method, url, kwargs):
         for n in range(Executor.RETRY_COUNT):
             try:
-                self.logger.info("Attempt #{}: running {} against {} with kwargs {}".format(n+1, method, url, kwargs))
+                self.logger.info("PAttempt #{}: running {} against {} with kwargs {}".format(n+1, method, url, kwargs))
                 resp = requests.request(method, url, **kwargs)
                 resp.raise_for_status()
                 return resp.status_code, resp.content
@@ -184,18 +189,18 @@ class Executor(object):
             if "maintainer" not in container["Labels"] or container["Labels"]["maintainer"] != "support@splunk.com":
                 continue
             splunkd_port = self.client.port(container["Id"], 8089)[0]["HostPort"]
-            url = "{}://localhost:{}/services/server/info".format(scheme, splunkd_port)
-            kwargs = {"auth": (username, password), "verify": False}
+            url = "{}://127.0.0.1:{}/services/server/info".format(scheme, splunkd_port)
+            kwargs = {"auth": (username, password), 'verify': False}
             status, content = self.handle_request_retry("GET", url, kwargs)
             assert status == 200
         return True
 
     def _run_splunk_query(self, container_id, query, username="admin", password="password"):
         splunkd_port = self.client.port(container_id, 8089)[0]["HostPort"]
-        url = "https://localhost:{}/services/search/jobs?output_mode=json".format(splunkd_port)
+        url = "https://127.0.0.1:{}/services/search/jobs?output_mode=json".format(splunkd_port)
         kwargs = {
                     "auth": (username, password),
-                    "data": "search={}".format(urllib.quote_plus(query)),
+                    "data": "search={}".format(urllib.parse.quote(query)),
                     "verify": False
                 }
         resp = requests.post(url, **kwargs)
@@ -205,7 +210,7 @@ class Executor(object):
         self.logger.info("Search job {} created against on {}".format(sid, container_id))
         # Wait for search to finish
         job_status = None
-        url = "https://localhost:{}/services/search/jobs/{}?output_mode=json".format(splunkd_port, sid)
+        url = "https://127.0.0.1:{}/services/search/jobs/{}?output_mode=json".format(splunkd_port, sid)
         kwargs = {
                     "auth": (username, password), 
                     "verify": False

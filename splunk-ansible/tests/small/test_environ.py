@@ -628,8 +628,10 @@ def test_getLicenses(default_yml, os_env, license_uri, wildcard_license, ignore_
                             ({}, {"JAVA_VERSION": "openjdk:9"}, "openjdk:9", None, None),
                             ({}, {"JAVA_VERSION": "oracle:8"}, "oracle:8", "https://download.oracle.com/otn-pub/java/jdk/8u141-b15/336fa29ff2bb4ef291e347e091f7f4a7/jdk-8u141-linux-x64.tar.gz", "141"),
                             ({}, {"JAVA_VERSION": "ORACLE:8"}, "oracle:8", "https://download.oracle.com/otn-pub/java/jdk/8u141-b15/336fa29ff2bb4ef291e347e091f7f4a7/jdk-8u141-linux-x64.tar.gz", "141"),
-                            ({}, {"JAVA_VERSION": "openjdk:11"}, "openjdk:11", "https://download.java.net/java/GA/jdk11/9/GPL/openjdk-11.0.2_linux-x64_bin.tar.gz", "11.0.2"),
-                            ({}, {"JAVA_VERSION": "oPenJdK:11"}, "openjdk:11", "https://download.java.net/java/GA/jdk11/9/GPL/openjdk-11.0.2_linux-x64_bin.tar.gz", "11.0.2"),
+                            ({}, {"JAVA_VERSION": "openjdk:8"}, "openjdk:8", "https://github.com/adoptium/temurin8-binaries/releases/download/jdk8u362-b09/OpenJDK8U-jdk_aarch64_linux_hotspot_8u362b09.tar.gz", "362"),
+                            ({}, {"JAVA_VERSION": "oPenJdK:8"}, "openjdk:8", "https://github.com/adoptium/temurin8-binaries/releases/download/jdk8u362-b09/OpenJDK8U-jdk_aarch64_linux_hotspot_8u362b09.tar.gz", "362"),
+                            ({}, {"JAVA_VERSION": "openjdk:11"}, "openjdk:11", "https://github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.19%2B7/OpenJDK11U-jdk_aarch64_linux_hotspot_11.0.19_7.tar.gz", "11.0.19"),
+                            ({}, {"JAVA_VERSION": "oPenJdK:11"}, "openjdk:11", "https://github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.19%2B7/OpenJDK11U-jdk_aarch64_linux_hotspot_11.0.19_7.tar.gz", "11.0.19"),
                             ({}, {"JAVA_VERSION": "oracle:8", "JAVA_DOWNLOAD_URL": "https://java/jdk-8u9000-linux-x64.tar.gz"}, "oracle:8", "https://java/jdk-8u9000-linux-x64.tar.gz", "9000"),
                             ({}, {"JAVA_VERSION": "openjdk:11", "JAVA_DOWNLOAD_URL": "https://java/openjdk-11.11.11_linux-x64_bin.tar.gz"}, "openjdk:11", "https://java/openjdk-11.11.11_linux-x64_bin.tar.gz", "11.11.11"),
                             # Check default.yml
@@ -637,7 +639,7 @@ def test_getLicenses(default_yml, os_env, license_uri, wildcard_license, ignore_
                             ({"java_download_url": "http://web/java.tgz"}, {}, None, "http://web/java.tgz", None),
                             ({"java_update_version": "jdk11u141"}, {}, None, None, "jdk11u141"),
                             # Check order of precedence
-                            ({"java_version": "openjdk:9", "java_download_url": "http://web/java.tgz", "java_update_version": "jdk11u141"}, {"JAVA_VERSION": "oPenJdK:11"}, "openjdk:11", "https://download.java.net/java/GA/jdk11/9/GPL/openjdk-11.0.2_linux-x64_bin.tar.gz", "11.0.2"),
+                            ({"java_version": "openjdk:9", "java_download_url": "http://web/java.tgz", "java_update_version": "jdk11u141"}, {"JAVA_VERSION": "oPenJdK:11"}, "openjdk:11", "https://github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.19%2B7/OpenJDK11U-jdk_aarch64_linux_hotspot_11.0.19_7.tar.gz", "11.0.19"),
                          ]
                         )
 def test_getJava(default_yml, os_env, java_version, java_download_url, java_update_version):

@@ -23,6 +23,7 @@ else
 	MONGO_ARCH = $(ARCH)
 endif
 
+
 # Linux Splunk arguments
 SPLUNK_LINUX_FILENAME ?= splunk-${SPLUNK_VERSION}-${SPLUNK_BUILD}-Linux-${SPLUNK_ARCH}.tgz
 SPLUNK_LINUX_BUILD_URL ?= https://download.splunk.com/products/${SPLUNK_PRODUCT}/releases/${SPLUNK_VERSION}/linux/${SPLUNK_LINUX_FILENAME}
@@ -389,11 +390,11 @@ run_large_tests_centos7:
 
 run_small_tests_redhat8:
 	@echo 'Running the super awesome small tests; RedHat 8'
-	pytest --log-cli-level DEBUG -n 2 --reruns 1 -vv tests/test_single_splunk_image.py --platform redhat-8 --junitxml test-results/redhat8-result/testresults_small_redhat8.xml
+	pytest --log-cli-level DEBUG -n 8 --reruns 1 -vv tests/test_single_splunk_image.py --platform redhat-8 --junitxml test-results/redhat8-result/testresults_small_redhat8.xml
 
 run_large_tests_redhat8:
 	@echo 'Running the super awesome large tests; RedHat 8'
-	pytest -n 2 --reruns 1 -sv tests/test_distributed_splunk_image.py --platform redhat-8 --junitxml test-results/redhat8-result/testresults_large_redhat8.xml
+	pytest -n 8 --reruns 1 -sv tests/test_distributed_splunk_image.py --platform redhat-8 --junitxml test-results/redhat8-result/testresults_large_redhat8.xml
 
 test_setup:
 	@echo 'Install test requirements'

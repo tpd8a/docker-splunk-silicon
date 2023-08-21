@@ -21,18 +21,13 @@ spec:
     spec:
       containers:
       - name: splunk-defaults
-        image: nginx
+        image: httpd
         ports:
         - containerPort: 80
         volumeMounts:
-        - name: nginx-config
-          mountPath: /etc/nginx/conf.d
-        - name: nginx-data-www
-          mountPath: /data/www
+        - name: httpd-data-www
+          mountPath: /usr/local/apache2/htdocs/
       volumes:
-      - name: nginx-config
-        configMap:
-          name: nginx-config 
-      - name: nginx-data-www
+      - name: httpd-data-www
         configMap: 
-          name: nginx-data-www 
+          name: /usr/local/apache2/htdocs/

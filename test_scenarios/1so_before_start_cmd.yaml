@@ -14,7 +14,7 @@ services:
     image: ${SPLUNK_IMAGE:-splunk/splunk:latest}
     environment:
       - SPLUNK_START_ARGS=--accept-license
-      - SPLUNK_BEFORE_START_CMD=add user admin2 -password changemepls -role admin, add user admin3 -password changemepls -role admin
+      - SPLUNK_BEFORE_START_CMD=useradd admin2 --password changemepls --gid 0, useradd admin3 --password changemepls --gid 0
       - SPLUNK_PASSWORD
       - DEBUG=true
     ports:

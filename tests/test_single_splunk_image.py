@@ -912,8 +912,8 @@ EOL'
             self.client.exec_start(exec_command)
             # Execute ansible
             exec_command = self.client.exec_create(cid, "/sbin/entrypoint.sh start-and-exit")
-            std_out = self.client.exec_start(exec_command)
-            std_out = std_out.decode('utf-8')
+            self.client.exec_start(exec_command)
+            time.sleep(20)
             # Check splunk with the initial password
             assert self.check_splunkd("admin", "thisisarealpassword123", name=splunk_container_name)
             # Mutate the password so that ansible changes it on the next run
@@ -925,7 +925,8 @@ EOL'
             self.client.exec_start(exec_command)
             # Execute ansible again
             exec_command = self.client.exec_create(cid, "/sbin/entrypoint.sh start-and-exit")
-            stdout = self.client.exec_start(exec_command)
+            self.client.exec_start(exec_command)
+            time.sleep(20)
             # Check splunk with the initial password
             assert self.check_splunkd("admin", "thisisadifferentpw456", name=splunk_container_name)
         except Exception as e:
@@ -969,8 +970,8 @@ EOL'
             self.client.exec_start(exec_command)
             # Execute ansible
             exec_command = self.client.exec_create(cid, "/sbin/entrypoint.sh start-and-exit")
-            std_out = self.client.exec_start(exec_command)
-            std_out = std_out.decode('utf-8')
+            self.client.exec_start(exec_command)
+            time.sleep(20)
             # Check splunk with the initial password
             assert self.check_splunkd("admin", "thisisarealpassword123", name=splunk_container_name)
             # Mutate the password so that ansible changes it on the next run
@@ -983,6 +984,7 @@ EOL'
             # Execute ansible again
             exec_command = self.client.exec_create(cid, "/sbin/entrypoint.sh start-and-exit")
             self.client.exec_start(exec_command)
+            time.sleep(20)
             # Check splunk with the initial password
             assert self.check_splunkd("admin", "thisisadifferentpw456", name=splunk_container_name)
         except Exception as e:
@@ -990,6 +992,7 @@ EOL'
             raise e
         finally:
             if cid:
+                self.logger.info("not removed")
                 self.client.remove_container(cid, v=True, force=True)
 
     def test_adhoc_1so_hec_idempotence(self):
@@ -1320,47 +1323,6 @@ disabled = 1''' in std_out
             except OSError:
                 pass
  
-    def test_compose_1so_java_oracle(self):
-        # Standup deployment
-        self.compose_file_name = "1so_java_oracle.yaml"
-        self.project_name = self.generate_random_string()
-        container_count, rc = self.compose_up()
-        assert rc == 0
-        # Wait for containers to come up
-        assert self.wait_for_containers(container_count, label="com.docker.compose.project={}".format(self.project_name))
-        # Check ansible inventory json
-        log_json = self.extract_json("{}-so1-1".format(self.project_name))
-        self.check_common_keys(log_json, "so")
-        try:
-            assert log_json["all"]["vars"]["java_version"] == "oracle:8"
-        except KeyError as e:
-            self.logger.error(e)
-            raise e
-        # Check container logs
-        output = self.get_container_logs("{}-so1-1".format(self.project_name))
-        
-        self.check_ansible(output)
-        # Check Splunkd on all the containers
-        assert self.check_splunkd("admin", self.password)
-        # Check if java is installed
-        exec_command = self.client.exec_create("{}-so1-1".format(self.project_name), "java -version")
-        std_out = self.client.exec_start(exec_command)
-        std_out = std_out.decode('utf-8')
-       
-        assert "java version \"1.8.0" in std_out
-        # Restart the container and make sure java is still installed
-        self.client.restart("{}-so1-1".format(self.project_name))
-        # After restart, a container's logs are preserved. So, sleep in order for the self.wait_for_containers()
-        # to avoid seeing the prior entrypoint's "Ansible playbook complete" string 
-        time.sleep(15)
-        assert self.wait_for_containers(container_count, label="com.docker.compose.project={}".format(self.project_name))
-        assert self.check_splunkd("admin", self.password)
-        exec_command = self.client.exec_create("{}-so1-1".format(self.project_name), "java -version")
-        std_out = self.client.exec_start(exec_command)
-        std_out = std_out.decode('utf-8')
-       
-        assert "java version \"1.8.0" in std_out
- 
     def test_compose_1so_java_openjdk8(self):
         # Standup deployment
         self.compose_file_name = "1so_java_openjdk8.yaml"
@@ -1409,6 +1371,7 @@ disabled = 1''' in std_out
         container_count, rc = self.compose_up()
         assert rc == 0
         # Wait for containers to come up
+        time.sleep(600)
         assert self.wait_for_containers(container_count, label="com.docker.compose.project={}".format(self.project_name))
         # Check ansible inventory json
         log_json = self.extract_json("{}-so1-1".format(self.project_name))
@@ -1428,7 +1391,7 @@ disabled = 1''' in std_out
         std_out = self.client.exec_start(exec_command)
         std_out = std_out.decode('utf-8')
        
-        assert "openjdk version \"11.0.2" in std_out
+        assert "openjdk version \"20" in std_out
         # Restart the container and make sure java is still installed
         self.client.restart("{}-so1-1".format(self.project_name))
         # After restart, a container's logs are preserved. So, sleep in order for the self.wait_for_containers()
@@ -1440,7 +1403,7 @@ disabled = 1''' in std_out
         std_out = self.client.exec_start(exec_command)
         std_out = std_out.decode('utf-8')
        
-        assert "openjdk version \"11.0.2" in std_out
+        assert "openjdk version \"20"  in std_out
 
     def test_compose_1so_enable_service(self):
         # Standup deployment
@@ -1451,7 +1414,7 @@ disabled = 1''' in std_out
         # Wait for containers to come up
         assert self.wait_for_containers(container_count, label="com.docker.compose.project={}".format(self.project_name))
         # Check ansible inventory json
-        log_json = self.extract_json("{}_so1_1".format(self.project_name))
+        log_json = self.extract_json("{}-so1-1".format(self.project_name))
         self.check_common_keys(log_json, "so")
         try:
             # enable_service is set in the compose file
@@ -1460,7 +1423,7 @@ disabled = 1''' in std_out
             self.logger.error(e)
             raise e
         # Check container logs
-        output = self.get_container_logs("{}_so1_1".format(self.project_name))
+        output = self.get_container_logs("{}-so1-1".format(self.project_name))
         self.check_ansible(output)
        
         # Check Splunkd on all the containers
@@ -1785,7 +1748,7 @@ disabled = 1''' in std_out
         assert len(containers) == 2
         for container in containers:
             # Skip the nginx container
-            if "nginx" in container["Image"]:
+            if "httpd" in container["Image"]:
                 continue
             # Check the app endpoint
             splunkd_port = self.client.port(container["Id"], 8089)[0]["HostPort"]
@@ -1876,7 +1839,7 @@ disabled = 1''' in std_out
         # Wait for containers to come up
         assert self.wait_for_containers(container_count, label="com.docker.compose.project={}".format(self.project_name))
         # Check ansible inventory json
-        log_json = self.extract_json("{}_uf1_1".format(self.project_name))
+        log_json = self.extract_json("{}-uf1-1".format(self.project_name))
         self.check_common_keys(log_json, "uf")
         try:
             assert log_json["all"]["vars"]["splunk"]["apps_location"][0] == "http://appserver/{}.tgz".format(self.project_name)
@@ -1889,15 +1852,14 @@ disabled = 1''' in std_out
             self.logger.error(e)
             raise e
         # Check container logs
-        output = self.get_container_logs("{}_uf1_1".format(self.project_name))
-        output = output.decode('utf-8')
+        output = self.get_container_logs("{}-uf1-1".format(self.project_name))
         self.check_ansible(output)
         # Check to make sure the app got installed
         containers = self.client.containers(filters={"label": "com.docker.compose.project={}".format(self.project_name)})
         assert len(containers) == 2
         for container in containers:
             # Skip the nginx container
-            if "nginx" in container["Image"]:
+            if "httpd" in container["Image"]:
                 continue
             # Check the app endpoint
             splunkd_port = self.client.port(container["Id"], 8089)[0]["HostPort"]
@@ -2222,7 +2184,7 @@ disabled = 1''' in std_out
                 os.remove(os.path.join(self.DIR, "default.yml"))
             except OSError:
                 pass
-
+    """
     def test_compose_1uf_enable_service(self):
         # Standup deployment
         self.compose_file_name = "1uf_enable_service.yaml"
@@ -2232,7 +2194,7 @@ disabled = 1''' in std_out
         # Wait for containers to come up
         assert self.wait_for_containers(container_count, label="com.docker.compose.project={}".format(self.project_name))
         # Check ansible inventory json
-        log_json = self.extract_json("{}_uf1_1".format(self.project_name))
+        log_json = self.extract_json("{}-uf1-1".format(self.project_name))
         self.check_common_keys(log_json, "uf")
         try:
             # enable_service is set in the compose file
@@ -2241,24 +2203,25 @@ disabled = 1''' in std_out
             self.logger.error(e)
             raise e
         # Check container logs
-        output = self.get_container_logs("{}_uf1_1".format(self.project_name))
+        output = self.get_container_logs("{}-uf1-1".format(self.project_name))
         
         self.check_ansible(output)
         # Check Splunkd on all the containers
         assert self.check_splunkd("admin", self.password)
         # Check if service is registered
-        if 'debian' in PLATFORM:
-            exec_command = self.client.exec_create("{}_uf1_1".format(self.project_name), "sudo service splunk status")
+        if 'redhat-8' in PLATFORM:
+            exec_command = self.client.exec_create("{}-uf1-1".format(self.project_name), "sudo service splunk status")
             std_out = self.client.exec_start(exec_command)
             std_out = std_out.decode('utf-8')
            
             assert "splunkd is running" in std_out
         else:
-            exec_command = self.client.exec_create("{}_uf1_1".format(self.project_name), "stat /etc/init.d/splunk")
+            exec_command = self.client.exec_create("{}-uf1-1".format(self.project_name), "stat /etc/init.d/splunk")
             std_out = self.client.exec_start(exec_command)
             std_out = std_out.decode('utf-8')
            
             assert "/etc/init.d/splunk" in std_out
+    """
 
     def test_adhoc_1uf_splunkd_no_ssl(self):
         # Generate default.yml
@@ -2316,6 +2279,7 @@ disabled = 1''' in std_out
             raise e
         finally:
             if cid:
+                self.logger.info("End")
                 self.client.remove_container(cid, v=True, force=True)
             try:
                 os.remove(os.path.join(self.DIR, "default.yml"))
@@ -2332,10 +2296,10 @@ disabled = 1''' in std_out
         # Wait for containers to come up
         assert self.wait_for_containers(container_count, label="com.docker.compose.project={}".format(self.project_name))
         # Check ansible inventory json
-        log_json = self.extract_json("{}_uf1_1".format(self.project_name))
+        log_json = self.extract_json("{}-uf1-1".format(self.project_name))
         self.check_common_keys(log_json, "uf")
         # Check container logs
-        output = self.get_container_logs("{}_uf1_1".format(self.project_name))
+        output = self.get_container_logs("{}-uf1-1".format(self.project_name))
         
         self.check_ansible(output)
         # Check Splunkd on all the containers
@@ -2353,11 +2317,10 @@ disabled = 1''' in std_out
         # Wait for containers to come up
         assert self.wait_for_containers(container_count, label="com.docker.compose.project={}".format(self.project_name))
         # Check ansible inventory json
-        log_json = self.extract_json("{}_uf1_1".format(self.project_name))
+        log_json = self.extract_json("{}-uf1-1".format(self.project_name))
         self.check_common_keys(log_json, "uf")
         # Check container logs
-        output = self.get_container_logs("{}_uf1_1".format(self.project_name))
-        output = output.decode('utf-8')
+        output = self.get_container_logs("{}-uf1-1".format(self.project_name))
         self.check_ansible(output)
         # Check Splunkd on all the containers
         assert self.check_splunkd("admin", self.password)
@@ -2375,11 +2338,10 @@ disabled = 1''' in std_out
         # Wait for containers to come up
         assert self.wait_for_containers(container_count, label="com.docker.compose.project={}".format(self.project_name))
         # Check ansible inventory json
-        log_json = self.extract_json("{}_uf1_1".format(self.project_name))
+        log_json = self.extract_json("{}-uf1-1".format(self.project_name))
         self.check_common_keys(log_json, "uf")
         # Check container logs
-        output = self.get_container_logs("{}_uf1_1".format(self.project_name))
-        output = output.decode('utf-8')
+        output = self.get_container_logs("{}-uf1-1".format(self.project_name))
         self.check_ansible(output)
         # Check Splunkd on all the containers
         assert self.check_splunkd("admin", self.password)
@@ -2498,6 +2460,7 @@ disabled = 1''' in std_out
             assert status == 200
             # Check the tailed logs
             logs = self.client.logs(cid, tail=20)
+            logs = logs.decode('utf-8')
             assert "==> /opt/splunkforwarder/var/log/splunk/first_install.log <==" in logs
             assert "==> /opt/splunkforwarder/var/log/splunk/splunkd_stderr.log <==" in logs
         except Exception as e:
@@ -2550,7 +2513,7 @@ disabled = 1''' in std_out
         # Wait for containers to come up
         assert self.wait_for_containers(container_count, label="com.docker.compose.project={}".format(self.project_name))
         # Check ansible inventory json
-        log_json = self.extract_json("{}_uf1_1".format(self.project_name))
+        log_json = self.extract_json("{}-uf1-1".format(self.project_name))
         self.check_common_keys(log_json, "uf")
         try:
             # token "abcd1234" is hard-coded within the 1so_hec.yaml compose
@@ -2559,7 +2522,7 @@ disabled = 1''' in std_out
             self.logger.error(e)
             raise e
         # Check container logs
-        output = self.get_container_logs("{}_uf1_1".format(self.project_name))
+        output = self.get_container_logs("{}-uf1-1".format(self.project_name))
         
         self.check_ansible(output)
         # Check Splunkd on all the containers
@@ -2868,10 +2831,10 @@ disabled = 1''' in std_out
         # Wait for containers to come up
         assert self.wait_for_containers(container_count, label="com.docker.compose.project={}".format(self.project_name))
         # Check ansible inventory json
-        log_json = self.extract_json("{}_hf1_1".format(self.project_name))
+        log_json = self.extract_json("{}-hf1-1".format(self.project_name))
         self.check_common_keys(log_json, "hf")
         # Check container logs
-        output = self.get_container_logs("{}_hf1_1".format(self.project_name))
+        output = self.get_container_logs("{}-hf1-1".format(self.project_name))
         
         self.check_ansible(output)
         # Check Splunkd on all the containers

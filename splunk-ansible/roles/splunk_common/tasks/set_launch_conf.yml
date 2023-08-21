@@ -5,6 +5,6 @@
     regexp: "^{{ item.key }}"
     line: "{{ item.key }}={{ item.value }}"
     create: yes
-  become: yes
+  become: true
   become_user: "{{ splunk.user }}"
   with_dict: "{{ splunk.launch }}"

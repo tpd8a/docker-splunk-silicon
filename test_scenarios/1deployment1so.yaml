@@ -11,12 +11,12 @@ services:
       splunknet:
         aliases:
           - appserver
-    image: nwang92/nginx-mitm
+    image: arm64v8/httpd
     hostname: appserver
     ports:
       - 80
     volumes:
-      - ../tests/fixtures:/www/data
+      - ../tests/fixtures:/usr/local/apache2/htdocs/
 
   depserver1:
     networks:

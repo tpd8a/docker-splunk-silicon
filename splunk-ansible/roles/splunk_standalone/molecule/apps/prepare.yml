@@ -28,14 +28,14 @@
         dest: /tmp/splunk_app_httpexample.tgz
 
 - name: Prepare
-  hosts: nginx-apps-server
+  hosts: https-apps-server
   tasks:
     - name: Copy splunk_app_simple
       copy:
         src: "{{ playbook_dir }}/../../../../tests/fixtures/splunk_app_simple"
-        dest: /usr/share/nginx/html/
+        dest: /usr/local/apache2/htdocs/
 
     - name: Archive splunk_app_simple
       archive:
-        path: /usr/share/nginx/html/splunk_app_simple
-        dest: /usr/share/nginx/html/splunk_app_simple.tgz
+        path: /usr/local/apache2/htdocs/splunk_app_simple
+        dest: /usr/local/apache2/htdocs//splunk_app_simple.tgz

@@ -27,5 +27,8 @@ if [[ -f "${SPLUNK_ETC_BAK}/splunk.version" ]]; then
 	if [[ "x${IMAGE_VERSION_SHA}" != "x${ETC_VERSION_SHA}" ]]; then
     	echo Updating ${SPLUNK_HOME}/etc
     	(cd ${SPLUNK_ETC_BAK}; tar cf - *) | (cd ${SPLUNK_HOME}/etc; tar xf -)
+		# Fix for tests, unable to connect to 127.0.0.1 from outside container, must bring mgmtport to all addresses.
+		# echo "mgmtHostPort = 0.0.0.0:8089" > /opt/splunkforwarder/etc/system/local/web.conf
+		# echo "SPLUNK_BINDIP=0.0.0.0" >> /opt/splunkforwarder/etc/splunk-launch.conf
 	fi
 fi

@@ -22,10 +22,10 @@ platforms:
     groups: [ splunk ]
     networks:
       - name: molecule
-  - name: nginx
-    image: nginx
-    groups: [ nginx-apps-server ]
-    command: nginx -g "daemon off;"
+  - name: httpd
+    image: httpd
+    groups: [ httpd-apps-server ]
+    command: httpd -g "daemon off;"
     exposed_ports:
       - 80/tcp
     networks:

@@ -39,7 +39,7 @@ HERE = os.path.dirname(os.path.normpath(__file__))
 _PLATFORM = platform.platform().lower()
 PLATFORM = "windows" if ("windows" in _PLATFORM or "cygwin" in _PLATFORM) else "linux"
 HOSTNAME = os.uname()[1]
-JAVA_VERSION_WHITELIST = frozenset(("oracle:8", "openjdk:8", "openjdk:9", "openjdk:11"))
+JAVA_VERSION_WHITELIST = frozenset(("oracle:8", "openjdk:8", "openjdk:9", "openjdk:11", "oracle:11"))
 
 roleNames = [
     'splunk_cluster_master', # (if it exists, set up indexer clustering)
@@ -321,18 +321,18 @@ def getJava(vars_scope):
     vars_scope["java_version"] = java_version
     # TODO: We can probably DRY this up
     if java_version == "oracle:8":
-        vars_scope["java_download_url"] = os.environ.get("JAVA_DOWNLOAD_URL", "https://download.oracle.com/otn-pub/java/jdk/8u141-b15/336fa29ff2bb4ef291e347e091f7f4a7/jdk-8u141-linux-x64.tar.gz")
+        vars_scope["java_download_url"] = os.environ.get("JAVA_DOWNLOAD_URL", "https://github.com/adoptium/temurin8-binaries/releases/download/jdk8u362-b09/OpenJDK8U-jdk_aarch64_linux_hotspot_8u362b09.tar.gz")
         try:
-            vars_scope["java_update_version"] = re.search(r"jdk-8u(\d+)-linux-x64.tar.gz", vars_scope["java_download_url"]).group(1)
+            vars_scope["java_update_version"] = re.search(r"jdk-8u(\d+)", vars_scope["java_download_url"]).group(1)
         except:
             raise Exception("Invalid Java download URL format")
     elif java_version == "openjdk:11":
-        vars_scope["java_download_url"] = os.environ.get("JAVA_DOWNLOAD_URL", "https://download.java.net/java/GA/jdk11/9/GPL/openjdk-11.0.2_linux-x64_bin.tar.gz")
+        vars_scope["java_download_url"] = os.environ.get("JAVA_DOWNLOAD_URL", "https://github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.19%2B7/OpenJDK11U-jdk_aarch64_linux_hotspot_11.0.19_7.tar.gz")
         try:
-            vars_scope["java_update_version"] = re.search(r"openjdk-(\d+\.\d+\.\d+)_linux-x64_bin.tar.gz", vars_scope["java_download_url"]).group(1)
+            vars_scope["java_update_version"] = re.search(r"jdk_aarch64_linux_hotspot_(\d+\.\d+\.\d+)_7.tar.gz", vars_scope["java_download_url"]).group(1)
         except:
             raise Exception("Invalid Java download URL format")
-
+            
 def getMongoBuild(vars_scope):
     """
     Parse and set mongo installation parameters
@@ -599,7 +599,7 @@ def getDFS(vars_scope):
     dfs_vars["dfw_num_slots"] = int(os.environ.get("SPLUNK_DFW_NUM_SLOTS", dfs_vars.get("dfw_num_slots", 10)))
     dfs_vars["dfc_num_slots"] = int(os.environ.get("SPLUNK_DFC_NUM_SLOTS", dfs_vars.get("dfc_num_slots", 4)))
     dfs_vars["dfw_num_slots_enabled"] = bool(os.environ.get('SPLUNK_DFW_NUM_SLOTS_ENABLED', dfs_vars.get("dfw_num_slots_enabled")))
-    dfs_vars["spark_master_host"] = os.environ.get("SPARK_MASTER_HOST", dfs_vars.get("spark_master_host", "127.0.0.1"))
+    dfs_vars["spark_master_host"] = os.environ.get("SPARK_MASTER_HOST", dfs_vars.get("spark_master_host", "0.0.0.0"))
     dfs_vars["spark_master_webui_port"] = int(os.environ.get("SPARK_MASTER_WEBUI_PORT", dfs_vars.get("spark_master_webui_port", 8080)))
 
 def getUFSplunkVariables(vars_scope):

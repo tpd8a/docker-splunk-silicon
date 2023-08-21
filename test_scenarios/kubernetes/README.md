@@ -43,14 +43,14 @@ The new Splunk Docker image contains logic that allows your default.yml and lice
 
 To demonstrate this capability, Nginx will be used to host our default.yml and our license.
 
-Assuming you have pulled splunk:latest successfully, you can navigate to the ```nginx-data-www``` folder and use the following command to generate a sample default.yml
+Assuming you have pulled splunk:latest successfully, you can navigate to the ```httpd-data-www``` folder and use the following command to generate a sample default.yml
 
 ```docker run splunk/splunk:latest create-defaults > ./default.yml```
 
 Once you have generated your default.yaml and inserted your license XML into the mySplunkLicense.lic file, it should look something like this: 
 
 ```
-cd nginx-data-www/
+cd httpd-data-www/
 ls -la
 total 16
 drwxr-xr-x  4 mmodestino  staff   128 Sep 26 23:50 .

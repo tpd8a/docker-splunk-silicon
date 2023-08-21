@@ -2,7 +2,7 @@
 - name: "Retrieve Splunk version"
   command: "{{ splunk.exec }} version --accept-license --answer-yes --no-prompt"
   register: installed_splunk_version
-  become: yes
+  become: true
   become_user: "{{ splunk.user }}"
   when: ansible_system is match("Linux")
 
@@ -14,7 +14,7 @@
   when: ansible_system is match("Linux")
 
 - name: "Enable service via boot-start - Linux (systemd)"
-  become: yes
+  become: true
   become_user: "{{ privileged_user }}"
   command: "{{ splunk.exec }} enable boot-start -systemd-managed 1 -user {{ splunk.user }} --accept-license --answer-yes --no-prompt"
   when:
@@ -32,7 +32,7 @@
     owner: "{{ privileged_user }}"
     group: "{{ privileged_user }}"
     mode: 0644
-  become: yes
+  become: true
   become_user: "{{ privileged_user }}"
   register: splunkd_unit_file
   when:
@@ -45,7 +45,7 @@
     - ansible_system is match("Linux")
     - splunk_systemd
     - installed_splunk_version[0] is version("7.2.2", ">=")
-  become: yes
+  become: true
   become_user: "{{ privileged_user }}"
   block:
   - name: Update cpu cgroup
@@ -78,7 +78,7 @@
       replace: '\1/\2'
 
 - name: "Reload daemons via systemctl - Linux (systemd)"
-  become: yes
+  become: true
   become_user: "{{ privileged_user }}"
   systemd:
     daemon-reload: yes
@@ -90,7 +90,7 @@
 
 - name: "Enable service via boot-start - Linux (init)"
   command: "{{ splunk.exec }} enable boot-start -user {{ splunk.user }} --accept-license --answer-yes --no-prompt"
-  become: yes
+  become: true
   become_user: "{{ privileged_user }}"
   when: ansible_system is match("Linux") and not splunk_systemd
 

@@ -544,7 +544,7 @@ splunk:
 
     spark_master_host: <str>
     * This setting identifies the Spark master.
-    * Default: 127.0.0.1
+    * Default: 0.0.0.0
 
     spark_master_webui_port: <int>
     * Identifies the port for the Spark master web UI.
