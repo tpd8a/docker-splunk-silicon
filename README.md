@@ -112,7 +112,7 @@ $ docker run -p 8000:8000 -e "SPLUNK_PASSWORD=<password>" \
 ```
 
 This command does the following:
-1. Starts a Docker container using the `splunk/splunk:latest` image.
+1. Starts a Docker container using the `splunk-redhat-8:latest` image that has been created by the makefile process
 1. Names the container as `so1`.
 1. Exposes a port mapping from the host's `8000` port to the container's `8000` port
 1. Specifies a custom `SPLUNK_PASSWORD`.
