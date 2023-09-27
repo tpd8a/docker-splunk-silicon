@@ -16,7 +16,6 @@ ifeq ($(ARCH), arm64)
     SPLUNK_ARCH_UF = armv8
     BUSYBOX_ARCH = armv8l
     MONGO_ARCH = aarch64
-	PYTHON_ARCH = aarch64
 else
 	SPLUNK_ARCH = $(ARCH)
 	SPLUNK_ARCH_UF = $(ARCH)
@@ -39,7 +38,7 @@ UF_WIN_BUILD_URL ?= https://download.splunk.com/products/universalforwarder/rele
 SCLOUD_URL ?= https://github.com/splunk/splunk-cloud-sdk-go/releases/download/v1.11.1/scloud_v7.1.0_linux_amd64.tar.gz
 
 # Get ARM'd 
-MONGO_VERSION ?= 4.2.24
+MONGO_VERSION ?= 4.4.19
 MONO_BUILD_FILENAME ?= mongodb-linux-${MONGO_ARCH}-rhel82-${MONGO_VERSION} 
 MONGO_BUILD_URL ?= https://fastdl.mongodb.org/linux/${MONO_BUILD_FILENAME} 
 
@@ -49,8 +48,8 @@ SCANNER_DATE := `date +%Y-%m-%d`
 SCANNER_DATE_YEST := `TZ=GMT+24 +%Y:%m:%d`
 SCANNER_VERSION := v8
 SCANNER_LOCALIP := $(shell ifconfig | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1' | awk '{print $1}' | head -n 1)
-SCANNER_IMAGES_TO_SCAN := splunk-redhat-8 uf-redhat-8  splunk-py23-redhat-8 uf-py23-redhat-8
-CONTAINERS_TO_SAVE := splunk-redhat-8 uf-redhat-8 splunk-py23-redhat-8 uf-py23-redhat-8
+SCANNER_IMAGES_TO_SCAN := splunk-debian-9 splunk-debian-10 splunk-centos-7 splunk-redhat-8 uf-debian-9 uf-debian-10 uf-centos-7 uf-redhat-8 splunk-py23-debian-9 splunk-py23-debian-10 splunk-py23-centos-7 splunk-py23-redhat-8 uf-py23-debian-9 uf-py23-debian-10 uf-py23-centos-7 uf-py23-redhat-8
+CONTAINERS_TO_SAVE := splunk-debian-9 splunk-debian-10 splunk-centos-7 splunk-redhat-8 uf-debian-9 uf-debian-10 uf-centos-7 uf-redhat-8 splunk-py23-debian-9 splunk-py23-debian-10 splunk-py23-centos-7 splunk-py23-redhat-8 uf-py23-debian-9 uf-py23-debian-10 uf-py23-centos-7 uf-py23-redhat-8
 ifeq ($(shell uname), Linux)
 	SCANNER_FILE = clair-scanner_linux_amd64
 else ifeq ($(shell uname), Darwin)
@@ -74,7 +73,19 @@ ansible:
 	@cat splunk-ansible/version.txt
 
 ##### Base images #####
-base: base-redhat-8 base-windows-2016
+base: base-debian-9 base-debian-10 base-centos-7 base-centos-8 base-redhat-8 base-windows-2016
+
+base-debian-10:
+	docker build ${DOCKER_BUILD_FLAGS} --build-arg SCLOUD_URL=${SCLOUD_URL} --build-arg BUSYBOX_ARCH=${BUSYBOX_ARCH} -t base-debian-10:${IMAGE_VERSION} ./base/debian-10
+
+base-debian-9:
+	docker build ${DOCKER_BUILD_FLAGS} --build-arg SCLOUD_URL=${SCLOUD_URL} --build-arg BUSYBOX_ARCH=${BUSYBOX_ARCH} -t base-debian-9:${IMAGE_VERSION} ./base/debian-9
+
+base-centos-7:
+	docker build ${DOCKER_BUILD_FLAGS} --build-arg SCLOUD_URL=${SCLOUD_URL} --build-arg BUSYBOX_ARCH=${BUSYBOX_ARCH} -t base-centos-7:${IMAGE_VERSION} ./base/centos-7
+
+base-centos-8:
+	docker build ${DOCKER_BUILD_FLAGS} --build-arg SCLOUD_URL=${SCLOUD_URL} --build-arg BUSYBOX_ARCH=${BUSYBOX_ARCH} -t base-centos-8:${IMAGE_VERSION} ./base/centos-8
 
 base-redhat-8:
 	docker build ${DOCKER_BUILD_FLAGS} --build-arg SCLOUD_URL=${SCLOUD_URL} --build-arg BUSYBOX_ARCH=${BUSYBOX_ARCH} --label version=${SPLUNK_VERSION} -t base-redhat-8:${IMAGE_VERSION} ./base/redhat-8
@@ -83,7 +94,39 @@ base-windows-2016:
 	docker build ${DOCKER_BUILD_FLAGS} -t base-windows-2016:${IMAGE_VERSION} ./base/windows-2016
 
 ##### Minimal images #####
-minimal: minimal-redhat-8
+minimal: minimal-debian-9 minimal-debian-10 minimal-centos-7 minimal-centos-8 minimal-redhat-8
+
+minimal-debian-9: base-debian-9
+	docker build ${DOCKER_BUILD_FLAGS} \
+		-f splunk/common-files/Dockerfile \
+		--build-arg SPLUNK_BASE_IMAGE=base-debian-9 \
+		--build-arg SPLUNK_BUILD_URL=${SPLUNK_LINUX_BUILD_URL} \
+		--build-arg MONGO_BUILD_URL=${MONGO_BUILD_URL} \
+		--target minimal -t minimal-debian-9:${IMAGE_VERSION} .	
+
+minimal-debian-10: base-debian-10
+	docker build ${DOCKER_BUILD_FLAGS} \
+		-f splunk/common-files/Dockerfile \
+		--build-arg SPLUNK_BASE_IMAGE=base-debian-10 \
+		--build-arg SPLUNK_BUILD_URL=${SPLUNK_LINUX_BUILD_URL} \
+                --build-arg MONGO_BUILD_URL=${MONGO_BUILD_URL} \
+		--target minimal -t minimal-debian-10:${IMAGE_VERSION} .	
+
+minimal-centos-7: base-centos-7
+	docker build ${DOCKER_BUILD_FLAGS} \
+		-f splunk/common-files/Dockerfile \
+		--build-arg SPLUNK_BASE_IMAGE=base-centos-7 \
+		--build-arg SPLUNK_BUILD_URL=${SPLUNK_LINUX_BUILD_URL} \
+                --build-arg MONGO_BUILD_URL=${MONGO_BUILD_URL} \
+		--target minimal -t minimal-centos-7:${IMAGE_VERSION} .	
+
+minimal-centos-8: base-centos-8
+	docker build ${DOCKER_BUILD_FLAGS} \
+		-f splunk/common-files/Dockerfile \
+		--build-arg SPLUNK_BASE_IMAGE=base-centos-8 \
+		--build-arg SPLUNK_BUILD_URL=${SPLUNK_LINUX_BUILD_URL} \
+                --build-arg MONGO_BUILD_URL=${MONGO_BUILD_URL} \
+		--target minimal -t minimal-centos-8:${IMAGE_VERSION} .
 
 minimal-redhat-8: base-redhat-8
 	docker build ${DOCKER_BUILD_FLAGS} \
@@ -95,7 +138,39 @@ minimal-redhat-8: base-redhat-8
 		--target minimal -t minimal-redhat-8:${IMAGE_VERSION} .
 
 ##### Bare images #####
-bare: bare-redhat-8
+bare: bare-debian-9 bare-debian-10 bare-centos-7 bare-centos-8 bare-redhat-8
+
+bare-debian-9: base-debian-9
+	docker build ${DOCKER_BUILD_FLAGS} \
+		-f splunk/common-files/Dockerfile \
+		--build-arg SPLUNK_BASE_IMAGE=base-debian-9 \
+		--build-arg SPLUNK_BUILD_URL=${SPLUNK_LINUX_BUILD_URL} \
+                --build-arg MONGO_BUILD_URL=${MONGO_BUILD_URL} \
+		--target bare -t bare-debian-9:${IMAGE_VERSION} .	
+
+bare-debian-10: base-debian-10
+	docker build ${DOCKER_BUILD_FLAGS} \
+		-f splunk/common-files/Dockerfile \
+		--build-arg SPLUNK_BASE_IMAGE=base-debian-10 \
+		--build-arg SPLUNK_BUILD_URL=${SPLUNK_LINUX_BUILD_URL} \
+                --build-arg MONGO_BUILD_URL=${MONGO_BUILD_URL} \
+		--target bare -t bare-debian-10:${IMAGE_VERSION} .	
+
+bare-centos-7: base-centos-7
+	docker build ${DOCKER_BUILD_FLAGS} \
+		-f splunk/common-files/Dockerfile \
+		--build-arg SPLUNK_BASE_IMAGE=base-centos-7 \
+		--build-arg SPLUNK_BUILD_URL=${SPLUNK_LINUX_BUILD_URL} \
+                --build-arg MONGO_BUILD_URL=${MONGO_BUILD_URL} \
+		--target bare -t bare-centos-7:${IMAGE_VERSION} .
+
+bare-centos-8: base-centos-8
+	docker build ${DOCKER_BUILD_FLAGS} \
+		-f splunk/common-files/Dockerfile \
+		--build-arg SPLUNK_BASE_IMAGE=base-centos-8 \
+		--build-arg SPLUNK_BUILD_URL=${SPLUNK_LINUX_BUILD_URL} \
+                --build-arg MONGO_BUILD_URL=${MONGO_BUILD_URL} \
+		--target bare -t bare-centos-8:${IMAGE_VERSION} .	
 
 bare-redhat-8: base-redhat-8
 	docker build ${DOCKER_BUILD_FLAGS} \
@@ -107,8 +182,39 @@ bare-redhat-8: base-redhat-8
 		--target bare -t bare-redhat-8:${IMAGE_VERSION} .
 
 ##### Splunk images #####
-splunk: ansible splunk-redhat-8
+splunk: ansible splunk-debian-9 splunk-debian-10 splunk-centos-7 splunk-centos-8 splunk-redhat-8
 
+splunk-debian-9: base-debian-9 ansible
+	docker build ${DOCKER_BUILD_FLAGS} \
+		-f splunk/common-files/Dockerfile \
+		--build-arg SPLUNK_BASE_IMAGE=base-debian-9 \
+		--build-arg SPLUNK_BUILD_URL=${SPLUNK_LINUX_BUILD_URL} \
+        --build-arg MONGO_BUILD_URL=${MONGO_BUILD_URL} \
+		-t splunk-debian-9:${IMAGE_VERSION} .
+
+splunk-debian-10: base-debian-10 ansible
+	docker build ${DOCKER_BUILD_FLAGS} \
+		-f splunk/common-files/Dockerfile \
+		--build-arg SPLUNK_BASE_IMAGE=base-debian-10 \
+		--build-arg SPLUNK_BUILD_URL=${SPLUNK_LINUX_BUILD_URL} \
+        --build-arg MONGO_BUILD_URL=${MONGO_BUILD_URL} \
+		-t splunk-debian-10:${IMAGE_VERSION} .
+
+splunk-centos-7: base-centos-7 ansible
+	docker build ${DOCKER_BUILD_FLAGS} \
+		-f splunk/common-files/Dockerfile \
+		--build-arg SPLUNK_BASE_IMAGE=base-centos-7 \
+		--build-arg SPLUNK_BUILD_URL=${SPLUNK_LINUX_BUILD_URL} \
+        --build-arg MONGO_BUILD_URL=${MONGO_BUILD_URL} \
+		-t splunk-centos-7:${IMAGE_VERSION} .
+
+splunk-centos-8: base-centos-8 ansible 
+	docker build ${DOCKER_BUILD_FLAGS} \
+		-f splunk/common-files/Dockerfile \
+		--build-arg SPLUNK_BASE_IMAGE=base-centos-8 \
+		--build-arg SPLUNK_BUILD_URL=${SPLUNK_LINUX_BUILD_URL} \
+        --build-arg MONGO_BUILD_URL=${MONGO_BUILD_URL} \
+		-t splunk-centos-8:${IMAGE_VERSION} .
 
 splunk-redhat-8: base-redhat-8 ansible
 	docker build ${DOCKER_BUILD_FLAGS} \
@@ -118,17 +224,57 @@ splunk-redhat-8: base-redhat-8 ansible
 		--build-arg MONGO_BUILD_URL=${MONGO_BUILD_URL} \
 		-t splunk-redhat-8:${IMAGE_VERSION} .
 
-
+splunk-windows-2016: base-windows-2016 ansible
+	docker build ${DOCKER_BUILD_FLAGS} \
+		-f splunk/windows-2016/Dockerfile \
+		--build-arg SPLUNK_BASE_IMAGE=base-windows-2016 \
+		--build-arg SPLUNK_BUILD_URL=${SPLUNK_WIN_BUILD_URL} \
+		-t splunk-windows-2016:${IMAGE_VERSION} .
 
 ##### UF images #####
-uf: ansible uf-redhat-8
+uf: ansible uf-debian-9 uf-debian-10 uf-centos-7 uf-centos-8 uf-redhat-8
 
-ufbare-redhat-8: base-redhat-8 ansible
+ufbare-debian-9: base-debian-9 ansible
 	docker build ${DOCKER_BUILD_FLAGS} \
 		-f uf/common-files/Dockerfile \
-		--build-arg SPLUNK_BASE_IMAGE=base-redhat-8 \
+		--build-arg SPLUNK_BASE_IMAGE=base-debian-9 \
 		--build-arg SPLUNK_BUILD_URL=${UF_LINUX_BUILD_URL} \
-		-t ufbare-redhat-8:${IMAGE_VERSION} .
+		--target bare -t ufbare-debian-9:${IMAGE_VERSION} .
+
+ufbare-debian-10: base-debian-10 ansible
+	docker build ${DOCKER_BUILD_FLAGS} \
+		-f uf/common-files/Dockerfile \
+		--build-arg SPLUNK_BASE_IMAGE=base-debian-10 \
+		--build-arg SPLUNK_BUILD_URL=${UF_LINUX_BUILD_URL} \
+		--target bare -t ufbare-debian-10:${IMAGE_VERSION} .
+
+uf-debian-9: base-debian-9 ansible
+	docker build ${DOCKER_BUILD_FLAGS} \
+		-f uf/common-files/Dockerfile \
+		--build-arg SPLUNK_BASE_IMAGE=base-debian-9 \
+		--build-arg SPLUNK_BUILD_URL=${UF_LINUX_BUILD_URL} \
+		-t uf-debian-9:${IMAGE_VERSION} .
+
+uf-debian-10: base-debian-10 ansible
+	docker build ${DOCKER_BUILD_FLAGS} \
+		-f uf/common-files/Dockerfile \
+		--build-arg SPLUNK_BASE_IMAGE=base-debian-10 \
+		--build-arg SPLUNK_BUILD_URL=${UF_LINUX_BUILD_URL} \
+		-t uf-debian-10:${IMAGE_VERSION} .
+
+uf-centos-7: base-centos-7 ansible
+	docker build ${DOCKER_BUILD_FLAGS} \
+		-f uf/common-files/Dockerfile \
+		--build-arg SPLUNK_BASE_IMAGE=base-centos-7 \
+		--build-arg SPLUNK_BUILD_URL=${UF_LINUX_BUILD_URL} \
+		-t uf-centos-7:${IMAGE_VERSION} .
+
+uf-centos-8: base-centos-8 ansible
+	docker build ${DOCKER_BUILD_FLAGS} \
+		-f uf/common-files/Dockerfile \
+		--build-arg SPLUNK_BASE_IMAGE=base-centos-8 \
+		--build-arg SPLUNK_BUILD_URL=${UF_LINUX_BUILD_URL} \
+		-t uf-centos-8:${IMAGE_VERSION} .
 
 uf-redhat-8: base-redhat-8 ansible
 	docker build ${DOCKER_BUILD_FLAGS} \
@@ -146,7 +292,31 @@ uf-windows-2016: base-windows-2016 ansible
 
 
 ##### Python 3 support #####
-splunk-py23: splunk-py23-redhat-8
+splunk-py23: splunk-py23-debian-9 splunk-py23-debian-10 splunk-py23-centos-7 splunk-py23-centos-8 splunk-py23-redhat-8
+
+splunk-py23-debian-9: splunk-debian-9
+	docker build ${DOCKER_BUILD_FLAGS} \
+		-f py23-image/debian-9/Dockerfile \
+		--build-arg SPLUNK_PRODUCT=splunk \
+		-t splunk-py23-debian-9:${IMAGE_VERSION} .
+
+splunk-py23-debian-10: splunk-debian-10
+	docker build ${DOCKER_BUILD_FLAGS} \
+		-f py23-image/debian-10/Dockerfile \
+		--build-arg SPLUNK_PRODUCT=splunk \
+		-t splunk-py23-debian-10:${IMAGE_VERSION} .
+
+splunk-py23-centos-7: splunk-centos-7
+	docker build ${DOCKER_BUILD_FLAGS} \
+		-f py23-image/centos-7/Dockerfile \
+		--build-arg SPLUNK_PRODUCT=splunk \
+		-t splunk-py23-centos-7:${IMAGE_VERSION} .
+
+splunk-py23-centos-8: splunk-centos-8
+	docker build ${DOCKER_BUILD_FLAGS} \
+		-f py23-image/centos-8/Dockerfile \
+		--build-arg SPLUNK_PRODUCT=splunk \
+		-t splunk-py23-centos-8:${IMAGE_VERSION} .
 
 splunk-py23-redhat-8: splunk-redhat-8
 	docker build ${DOCKER_BUILD_FLAGS} \
@@ -154,7 +324,31 @@ splunk-py23-redhat-8: splunk-redhat-8
 		--build-arg SPLUNK_PRODUCT=splunk \
 		-t splunk-py23-redhat-8:${IMAGE_VERSION} .
 
-uf-py23: uf-py23-redhat-8
+uf-py23: uf-py23-debian-9 uf-py23-debian-10 uf-py23-centos-7 uf-py23-redhat-8
+
+uf-py23-debian-9: uf-debian-9
+	docker build ${DOCKER_BUILD_FLAGS} \
+		-f py23-image/debian-9/Dockerfile \
+		--build-arg SPLUNK_PRODUCT=uf \
+		-t uf-py23-debian-9:${IMAGE_VERSION} .
+
+uf-py23-debian-10: uf-debian-10
+	docker build ${DOCKER_BUILD_FLAGS} \
+		-f py23-image/debian-10/Dockerfile \
+		--build-arg SPLUNK_PRODUCT=uf \
+		-t uf-py23-debian-10:${IMAGE_VERSION} .
+
+uf-py23-centos-7: uf-centos-7
+	docker build ${DOCKER_BUILD_FLAGS} \
+		-f py23-image/centos-7/Dockerfile \
+		--build-arg SPLUNK_PRODUCT=uf \
+		-t uf-py23-centos-7:${IMAGE_VERSION} .
+
+uf-py23-centos-8: uf-centos-8
+	docker build ${DOCKER_BUILD_FLAGS} \
+		-f py23-image/centos-8/Dockerfile \
+		--build-arg SPLUNK_PRODUCT=uf \
+		-t uf-py23-centos-8:${IMAGE_VERSION} .
 
 uf-py23-redhat-8: uf-redhat-8
 	docker build ${DOCKER_BUILD_FLAGS} \
@@ -174,25 +368,58 @@ test: clean ansible test_setup all run_small_tests run_large_tests
 
 debug_redhat8: run_small_debug_redhat8
 
-run_small_tests: run_small_tests_redhat8 
+run_small_tests: run_small_tests_centos7 run_small_tests_redhat8 run_small_tests_debian9 run_small_tests_debian10
 
-run_large_tests: run_large_tests_redhat8 
+run_large_tests: run_large_tests_centos7 run_large_tests_redhat8 run_large_tests_debian9 run_large_tests_debian10
 
-test_redhat8: clean ansible splunk-redhat-8 uf-redhat-8 test_setup 
+test_centos7: clean ansible splunk-centos-7 uf-centos-7 test_setup run_small_tests_centos7 run_large_tests_centos7
+
+test_redhat8: clean ansible splunk-redhat-8 uf-redhat-8 test_setup run_small_tests_redhat8 run_large_tests_redhat8
+
+test_debian9: clean ansible splunk-debian-9 uf-debian-9 test_setup run_small_tests_debian9 run_large_tests_debian9
+
+test_debian10: clean ansible splunk-debian-10 uf-debian-10 test_setup run_small_tests_debian10 run_large_tests_debian10
+
+run_small_tests_centos7:
+	@echo 'Running the super awesome small tests; CentOS 7'
+	pytest -n 2 --reruns 1 -sv tests/test_single_splunk_image.py --platform centos-7 --junitxml test-results/centos7-result/testresults_small_centos7.xml
+
+run_large_tests_centos7:
+	@echo 'Running the super awesome large tests; CentOS 7'
+	pytest -n 2 --reruns 1 -sv tests/test_distributed_splunk_image.py --platform centos-7 --junitxml test-results/centos7-result/testresults_large_centos7.xml
+
+run_small_tests_redhat8:
+	@echo 'Running the super awesome small tests; RedHat 8'
+	pytest --log-cli-level DEBUG -n 8 --reruns 1 -vv tests/test_single_splunk_image.py --platform redhat-8 --junitxml test-results/redhat8-result/testresults_small_redhat8.xml
 
 run_large_tests_redhat8:
 	@echo 'Running the super awesome large tests; RedHat 8'
-	pytest -n 4 --reruns 1 -sv tests/test_distributed_splunk_image.py --platform redhat-8 --junitxml test-results/redhat8-result/testresults_large_redhat8.xml
+	pytest -n 8 --reruns 1 -sv tests/test_distributed_splunk_image.py --platform redhat-8 --junitxml test-results/redhat8-result/testresults_large_redhat8.xml
 
 test_setup:
 	@echo 'Install test requirements'
 	pip3 install --upgrade pip
 	pip3 install -r $(shell pwd)/tests/requirements.txt --upgrade
+	mkdir test-results/centos7-result || true
+	mkdir test-results/debian9-result || true
+	mkdir test-results/debian10-result || true
 	mkdir test-results/redhat8-result || true
 
-run_small_tests_redhat8:
-	@echo 'Running the super awesome small tests; Redhat 8'
-	pytest -n 4 --reruns 1 -sv tests/test_single_splunk_image.py --platform redhat-8 --junitxml test-results/redhat8-result/testresults_small_redhat8.xml
+run_small_tests_debian9:
+	@echo 'Running the super awesome small tests; Debian 9'
+	pytest -n 2 --reruns 1 -sv tests/test_single_splunk_image.py --platform debian-9 --junitxml test-results/debian9-result/testresults_small_debian9.xml
+
+run_large_tests_debian9:
+	@echo 'Running the super awesome large tests; Debian 9'
+	pytest -n 2 --reruns 1 -sv tests/test_distributed_splunk_image.py --platform debian-9 --junitxml test-results/debian9-result/testresults_large_debian9.xml
+
+run_small_tests_debian10:
+	@echo 'Running the super awesome small tests; Debian 10'
+	pytest -n 2 --reruns 1 -sv tests/test_single_splunk_image.py --platform debian-10 --junitxml test-results/debian10-result/testresults_small_debian10.xml
+
+run_large_tests_debian10:
+	@echo 'Running the super awesome large tests; Debian 10'
+	pytest -n 2 --reruns 1 -sv tests/test_distributed_splunk_image.py --platform debian-10 --junitxml test-results/debian10-result/testresults_large_debian10.xml
 
 save_containers:
 	@echo 'Saving the following containers:${CONTAINERS_TO_SAVE}'
@@ -201,12 +428,33 @@ save_containers:
 
 test_python3_all: test_splunk_python3_all test_uf_python3_all
 
-test_splunk_python3_all: test_splunk_redhat8_python3 
-test_uf_python3_all: test_uf_redhat8_python3
+test_splunk_python3_all: test_splunk_centos7_python3 test_splunk_redhat8_python3 test_splunk_debian9_python3 test_splunk_debian10_python3
+
+test_uf_python3_all: test_uf_centos7_python3 test_uf_redhat8_python3 test_uf_debian9_python3 test_uf_debian10_python3
+
+test_splunk_centos7_python3:
+	$(call test_python3_installation,splunk-py23-centos-7)
 
 test_splunk_redhat8_python3:
 	$(call test_python3_installation,splunk-py23-redhat-8)
 
+test_splunk_debian9_python3:
+	$(call test_python3_installation,splunk-py23-debian-9)
+
+test_splunk_debian10_python3:
+	$(call test_python3_installation,splunk-py23-debian-10)
+
+test_uf_centos7_python3:
+	$(call test_python3_installation,uf-py23-centos-7)
+
+test_uf_redhat8_python3:
+	$(call test_python3_installation,uf-py23-redhat-8)
+
+test_uf_debian9_python3:
+	$(call test_python3_installation,uf-py23-debian-9)
+
+test_uf_debian10_python3:
+	$(call test_python3_installation,uf-py23-debian-10)
 
 define test_python3_installation
 docker run -d --rm --name $1 -it $1 bash
@@ -220,14 +468,29 @@ test_splunk_python2_all: test_splunk_centos7_python2 test_splunk_redhat8_python2
 
 test_uf_python2_all: test_uf_centos7_python2 test_uf_redhat8_python2 test_uf_debian9_python2 test_uf_debian10_python2
 
-
+test_splunk_centos7_python2:
+	$(call test_python2_installation,splunk-py23-centos-7)
 
 test_splunk_redhat8_python2:
 	$(call test_python2_installation,splunk-py23-redhat-8)
 
+test_splunk_debian9_python2:
+	$(call test_python2_installation,splunk-py23-debian-9)
+
+test_splunk_debian10_python2:
+	$(call test_python2_installation,splunk-py23-debian-10)
+
+test_uf_centos7_python2:
+	$(call test_python2_installation,uf-py23-centos-7)
+
 test_uf_redhat8_python2:
 	$(call test_python2_installation,uf-py23-redhat-8)
 
+test_uf_debian9_python2:
+	$(call test_python2_installation,uf-py23-debian-9)
+
+test_uf_debian10_python2:
+	$(call test_python2_installation,uf-py23-debian-10)
 
 #python2 version print to stderr, hence the 2>&1
 define test_python2_installation
@@ -236,6 +499,17 @@ docker exec -it $1 bash -c 'if [[ $$(python -V 2>&1) =~ "Python 2" ]] ; then ech
 docker kill $1
 endef
 
+test_debian10_image_size:
+	$(call test_image_size,splunk-debian-10)
+
+define test_image_size
+docker pull splunk/splunk:edge
+CUR_SIZE=$$(docker image inspect $1:latest --format='{{.Size}}') ; \
+EDGE_SIZE=$$(docker image inspect splunk/splunk:edge --format='{{.Size}}') ; \
+echo "current $1 image size = "$$CUR_SIZE ; \
+echo "edge image size = "$$EDGE_SIZE ; \
+if [[ $$CUR_SIZE -gt $$EDGE_SIZE*140/100 ]] ; then echo "current image size is 40% more than edge image" ; exit 1 ; fi
+endef
 
 setup_clair_scanner:
 	mkdir clair-scanner-logs
